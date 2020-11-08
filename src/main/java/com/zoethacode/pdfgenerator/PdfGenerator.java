@@ -1,6 +1,9 @@
 package com.zoethacode.pdfgenerator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,13 +42,21 @@ public class PdfGenerator {
 		users.add(thais);
 		users.add(zoe);
 		
-		pdfGenerator(users);
+		ByteArrayOutputStream baos = pdfGenerator(users);
 
+		try(OutputStream outputStream = new FileOutputStream("/tmp/test.pdf")) {
+			baos.writeTo(outputStream);
+		}
+		
 		System.out.println("Awesome PDF just got created.");
 	}
 
-	public static void pdfGenerator(List<User> users) throws IOException {
-		PdfDocument pdf = new PdfDocument(new PdfWriter("/tmp/docPDF.pdf"));
+	public static ByteArrayOutputStream pdfGenerator(List<User> users) throws IOException {
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
+		PdfWriter writer = new PdfWriter(baos);
+		PdfDocument pdf = new PdfDocument(writer);
 		
 		try (Document document = new Document(pdf)) {
 			// Definimos los tipos de letras a utilizar.
@@ -97,5 +108,7 @@ public class PdfGenerator {
 				document.add(paragraph);
 			}
 		}
+		
+		return baos;
 	}
 }
